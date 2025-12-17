@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Excel → PDF (Preview & Download)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:18px;background:#f5f7fb;color:#111}
+    .wrap{max-width:1100px;margin:0 auto}
+    h1{font-size:20px}
+    .controls{background:#fff;padding:12px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.06);margin-bottom:12px}
+    input[type=file]{display:block;margin:8px 0}
+    button{padding:8px 12px;border-radius:6px;background:#0ea5a4;color:#fff;border:none;cursor:pointer;margin-right:8px}
+    button.secondary{background:#64748b}
+    #preview{background:#fff;padding:12px;border-radius:8px;min-height:120px;box-shadow:0 4px 12px rgba(0,0,0,0.04)}
+    table{border-collapse:collapse;width:100%}
+    table td, table th{border:1px solid #ddd;padding:6px;font-size:13px}
+    .note{font-size:13px;color:#555;margin-top:8px}
+  </style>
+
+  <!-- Libraries -->
+  <!-- SheetJS for reading Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- html2canvas to render preview area to canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- jsPDF to create PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Excel → PDF (Preview & Download)</h1>
+
+    <div class="controls">
+      <label><strong>Select Excel file (.xlsx, .xls)</strong></label>
+      <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
+      <div style="margin-top:8px">
+        <button id="loadBtn" onclick="loadExcel()">Load & Preview</button>
+        <button id="downloadPdfBtn" class="secondary" onclick="downloadPreviewAsPdf()" disabled>Download PDF</button>
+        <button onclick="clearPreview()" class="secondary">Clear</button>
+      </div>
+      <p class="note">Tip: Simple spreadsheets convert best. Large files may be slow in-browser.</p>
+    </div>
+
+    <div id="preview" aria-live="polite">
+      <!-- preview table will be injected here -->
+      <p style="color:#666">Preview will appear here after loading an Excel file.</p>
+    </div>
+  </div>
+
+<script>
+/*
+  Excel -> PDF (client-side)
+  1) read file with SheetJS
+  2) convert first sheet (or all sheets concatenated) to HTML table and insert into #preview
+  3) use html2canvas to capture #preview and jsPDF to generate downloadable PDF
+*/
+
+let lastPreviewHtml = ""; // keep markup for download
+let lastLoadedFileName = "converted";
+
+function readFileAsArrayBuffer(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = () => rej(r.error);
+    r.readAsArrayBuffer(file);
+  });
+}
+
+async function loadExcel() {
+  const inp = document.getElementById('excelFile');
+  const preview = document.getElementById('preview');
+  const downloadBtn = document.getElementById('downloadPdfBtn');
+  preview.innerHTML = '';
+  downloadBtn.disabled = true;
+  if (!inp.files || !inp.files[0]) {
+    alert('Please select an Excel file first.');
+    return;
+  }
+  const file = inp.files[0];
+  lastLoadedFileName = (file.name || 'converted').replace(/\.[^/.]+$/, "");
+  try {
+    const arrayBuffer = await readFileAsArrayBuffer(file);
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+    // We'll render each sheet as a separate table, stacked
+    let html = '';
+    workbook.SheetNames.forEach((sheetName, idx) => {
+      const ws = workbook.Sheets[sheetName];
+      const sheetHtml = XLSX.utils.sheet_to_html(ws, { id: `sheet-${idx}`, editable: false });
+      // sheet_to_html returns full <table> with extra wrapper — keep table only
+      html += `<div style="margin-bottom:18px"><h3 style="margin:6px 0">${escapeHtml(sheetName)}</h3>${sheetHtml}</div>`;
+    });
+
+    // Insert into preview
+    preview.innerHTML = `<div id="preview-inner">${html}</div>`;
+    // Remove inline width on generated table to make responsive
+    [...preview.querySelectorAll('table')].forEach(tbl => {
+      tbl.style.width = '100%';
+      tbl.removeAttribute('width');
+    });
+
+    lastPreviewHtml = preview.innerHTML;
+    downloadBtn.disabled = false;
+  } catch (err) {
+    console.error(err);
+    alert('Error reading file: ' + (err.message || err));
+  }
+}
+
+// simple escape for sheet name
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+}
+
+async function downloadPreviewAsPdf() {
+  const preview = document.getElementById('preview');
+  const downloadBtn = document.getElementById('downloadPdfBtn');
+  if (!lastPreviewHtml) {
+    alert('No preview available — load an Excel file first.');
+    return;
+  }
+
+  try {
+    downloadBtn.disabled = true;
+    downloadBtn.innerText = 'Generating PDF...';
+
+    // ensure fonts/backgrounds render well — you can tweak scale for better quality
+    const opts = { scale: 2, useCORS: true, backgroundColor: '#ffffff' };
+    // capture preview area. If large, break into pages — we'll capture full height and then slice per PDF page
+    const canvas = await html2canvas(preview, opts);
+    const imgData = canvas.toDataURL('image/png');
+
+    // init jsPDF
+    const { jsPDF } = window.jspdf;
+    // A4 portrait dimensions in pt: 595.28 x 841.89, but jsPDF default units are "pt" or "mm"; we'll use "mm"
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // compute image dimensions in mm to fit page width
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgWidthPx = canvas.width;
+    const imgHeightPx = canvas.height;
+    const pxToMm = (mm) => mm; // placeholder
+    // convert px to mm approx: 1 px ≈ 0.264583 mm at 96 DPI
+    const pxToMmFactor = 0.264583;
+    const imgWidthMm = imgWidthPx * pxToMmFactor;
+    const imgHeightMm = imgHeightPx * pxToMmFactor;
+
+    // scale image to page width
+    const ratio = pageWidth / imgWidthMm;
+    const scaledHeight = imgHeightMm * ratio;
+
+    if (scaledHeight <= pageHeight) {
+      // single page
+      pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, scaledHeight);
+    } else {
+      // multiple pages: slice the canvas by page-height in px
+      const pageHeightPx = Math.floor(pageHeight / pxToMmFactor);
+      let position = 0;
+      while (position < canvas.height) {
+        const sliceCanvas = document.createElement('canvas');
+        sliceCanvas.width = canvas.width;
+        sliceCanvas.height = Math.min(pageHeightPx, canvas.height - position);
+        const ctx = sliceCanvas.getContext('2d');
+        ctx.drawImage(canvas, 0, position, canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
+        const sliceData = sliceCanvas.toDataURL('image/png');
+        const sliceHeightMm = sliceCanvas.height * pxToMmFactor * ratio;
+        pdf.addImage(sliceData, 'PNG', 0, 0, pageWidth, sliceHeightMm);
+        position += pageHeightPx;
+        if (position < canvas.height) pdf.addPage();
+      }
+    }
+
+    pdf.save(`${lastLoadedFileName}.pdf`);
+    downloadBtn.innerText = 'Download PDF';
+    downloadBtn.disabled = false;
+  } catch (err) {
+    console.error(err);
+    alert('PDF generation error: ' + (err.message || err));
+    document.getElementById('downloadPdfBtn').innerText = 'Download PDF';
+    document.getElementById('downloadPdfBtn').disabled = false;
+  }
+}
+
+function clearPreview() {
+  document.getElementById('preview').innerHTML = '<p style="color:#666">Preview will appear here after loading an Excel file.</p>';
+  document.getElementById('downloadPdfBtn').disabled = true;
+  lastPreviewHtml = '';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>QR Code Generator & Scanner</title>
+
+<script src="../assets/qrious.min.js"></script>
+<script src="../assets/jsQR.min.js"></script>
+
+<style>
+body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+.box { background: white; padding: 20px; max-width: 650px; margin: auto; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #2196F3; border: none; color: white; border-radius: 5px; }
+button:hover { background: #1976D2; }
+canvas { margin-top: 10px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>🔹 QR Code Generator & Scanner</h2>
+
+<label>Enter text/URL for QR:</label><br>
+<input type="text" id="qrText" style="width:100%; padding:8px;"><br><br>
+<button onclick="generateQR()">Generate QR</button>
+<button onclick="downloadQR()">Download QR</button><br><br>
+
+<canvas id="qrCanvas"></canvas><br><br>
+
+<label>Scan QR from Image:</label><br>
+<input type="file" id="qrImage" accept="image/*"><br>
+<button onclick="scanQR()">Scan QR</button><br>
+<p id="scanResult"></p>
+</div>
+
+<script>
+let qr = new QRious({
+    element: document.getElementById('qrCanvas'),
+    size: 250,
+    value: ''
+});
+
+function generateQR() {
+    const text = document.getElementById("qrText").value;
+    if(!text.trim()) return alert("Enter text or URL");
+    qr.value = text;
+}
+
+function downloadQR() {
+    const canvas = document.getElementById("qrCanvas");
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = "QR_Code.png";
+    link.click();
+}
+
+function scanQR() {
+    const file = document.getElementById("qrImage").files[0];
+    if(!file) return alert("Select an image");
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.src = e.target.result;
+
+        img.onload = function() {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            if(code) {
+                document.getElementById("scanResult").innerText = "Scanned QR Text: " + code.data;
+            } else {
+                document.getElementById("scanResult").innerText = "No QR code found in image.";
+            }
+        };
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>

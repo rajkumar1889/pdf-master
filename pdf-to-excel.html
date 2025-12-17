@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF to Excel Converter</title>
+
+    <!-- PDF.js -->
+    <script src="../assets/pdf.worker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.5.207/pdf.min.js"></script>
+
+    <!-- XLSX -->
+    <script src="../assets/xlsx.full.min.js"></script>
+
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .btn { padding: 10px 15px; background: #007bff; color: white; border: none; margin-top: 20px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 5px; }
+    </style>
+</head>
+<body>
+
+<h2>PDF → Excel Converter</h2>
+
+<input type="file" id="pdfFile" accept="application/pdf"><br><br>
+
+<button class="btn" onclick="convertPDFtoExcel()">Convert PDF → Excel</button>
+
+<h3>Preview:</h3>
+<div id="preview"></div>
+
+<button class="btn" id="downloadBtn" style="display:none;" onclick="downloadExcel()">Download Excel</button>
+<button class="btn" id="viewBtn" style="display:none;" onclick="viewExcel()">View Excel</button>
+
+<script>
+let excelData = null;
+
+/* ------------ Extract Text From PDF Page ------------ */
+async function extractTextFromPDF(pdf) {
+    let allText = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+        let page = await pdf.getPage(i);
+        let content = await page.getTextContent();
+        let strings = content.items.map(item => item.str).join(" ");
+        allText += strings + "\n";
+    }
+    return allText;
+}
+
+/* ------------ Convert Extracted Text → Table ------------ */
+function textToTable(text) {
+    let rows = text.split("\n").map(r => r.trim()).filter(r => r.length);
+
+    let preview = document.getElementById("preview");
+    preview.innerHTML = "";
+
+    let table = document.createElement("table");
+
+    rows.forEach(row => {
+        let tr = document.createElement("tr");
+        row.split(" ").forEach(col => {
+            let td = document.createElement("td");
+            td.textContent = col;
+            tr.appendChild(td);
+        });
+        table.appendChild(tr);
+    });
+
+    preview.appendChild(table);
+
+    return rows.map(r => r.split(" "));
+}
+
+/* ------------ Convert PDF → Excel -------------- */
+async function convertPDFtoExcel() {
+    let file = document.getElementById("pdfFile").files[0];
+    if (!file) return alert("Select a PDF file!");
+
+    let fileReader = new FileReader();
+    fileReader.onload = async function() {
+        let typedarray = new Uint8Array(this.result);
+
+        let pdf = await pdfjsLib.getDocument(typedarray).promise;
+        let text = await extractTextFromPDF(pdf);
+
+        excelData = textToTable(text);
+
+        document.getElementById("downloadBtn").style.display = "inline-block";
+        document.getElementById("viewBtn").style.display = "inline-block";
+    };
+    fileReader.readAsArrayBuffer(file);
+}
+
+/* ------------ Download Excel (.xlsx) ------------ */
+function downloadExcel() {
+    if (!excelData) return;
+
+    let ws = XLSX.utils.aoa_to_sheet(excelData);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+
+    XLSX.writeFile(wb, "PDF_to_Excel.xlsx");
+}
+
+/* ------------ View Excel on Screen ------------ */
+function viewExcel() {
+    if (!excelData) return;
+
+    let newWindow = window.open("", "_blank");
+    let html = "<table border='1'>";
+    excelData.forEach(row => {
+        html += "<tr>";
+        row.forEach(col => {
+            html += "<td>" + col + "</td>";
+        });
+        html += "</tr>";
+    });
+    html += "</table>";
+    newWindow.document.write(html);
+}
+</script>
+
+</body>
+</html>

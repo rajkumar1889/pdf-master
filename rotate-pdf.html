@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rotate PDF</title>
+<script src="../assets/pdf.worker.js"></script>
+<script src="../assets/jspdf.min.js"></script>
+
+<style>
+body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+.box { background: white; padding: 20px; max-width: 650px; margin: auto; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #ff9800; border: none; color: white; border-radius: 5px; }
+button:hover { background: #fb8c00; }
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>🔄 Rotate PDF Pages</h2>
+
+<label>Select PDF:</label><br>
+<input type="file" id="pdfFile" accept="application/pdf"><br><br>
+
+<label>Rotate Angle (Degrees):</label><br>
+<input type="number" id="rotateAngle" value="90" step="90"><br><br>
+
+<button onclick="previewPDF()">Preview</button>
+<button onclick="downloadRotatedPDF()">Download Rotated PDF</button>
+</div>
+
+<script>
+let loadedPDF = null;
+let pdfDocArrayBuffer = null;
+
+async function previewPDF() {
+    const file = document.getElementById("pdfFile").files[0];
+    if (!file) return alert("Select a PDF file!");
+
+    pdfDocArrayBuffer = await file.arrayBuffer();
+    const rotate = parseInt(document.getElementById("rotateAngle").value);
+
+    const viewerURL = "../viewer.html?file=" + URL.createObjectURL(file) +
+                      "&rotate=" + rotate;
+
+    window.open(viewerURL, "_blank");
+}
+
+async function downloadRotatedPDF() {
+    if (!pdfDocArrayBuffer) return alert("Load a PDF first!");
+    const rotate = parseInt(document.getElementById("rotateAngle").value);
+
+    const pdf = await pdfjsLib.getDocument({ data: pdfDocArrayBuffer }).promise;
+    const newPDF = new jspdf.jsPDF();
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.5 });
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const imgData = canvas.toDataURL("image/jpeg");
+
+        if (i > 1) newPDF.addPage();
+        newPDF.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, rotate);
+    }
+
+    newPDF.save("Rotated_PDF.pdf");
+}
+</script>
+
+</body>
+</html>

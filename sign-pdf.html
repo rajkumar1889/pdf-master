@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit PDF – Add Text</title>
+<script src="../assets/pdf.worker.js"></script>
+<script src="../assets/jspdf.min.js"></script>
+<script src="../assets/html2canvas.min.js"></script>
+
+<style>
+    body {
+        font-family: Arial;
+        background: #f5f5f5;
+        padding: 20px;
+    }
+    .box {
+        background: white;
+        padding: 20px;
+        max-width: 600px;
+        margin: auto;
+        border-radius: 8px;
+        box-shadow: 0 0 10px #ccc;
+    }
+    button {
+        padding: 10px 20px;
+        background: #2196F3;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #1976D2;
+    }
+</style>
+</head>
+<body>
+
+<div class="box">
+    <h2>✏️ Edit PDF (Add Text)</h2>
+
+    <label>Select PDF:</label><br>
+    <input type="file" id="pdfFile" accept="application/pdf"><br><br>
+
+    <label>Enter Text to Add:</label><br>
+    <input type="text" id="addText" style="width:100%; padding:8px;"><br><br>
+
+    <label>Page Number:</label><br>
+    <input type="number" id="pageNumber" value="1" min="1" style="width:120px;"><br><br>
+
+    <button onclick="previewPDF()">Preview</button>
+    <button onclick="downloadEditedPDF()">Download Edited PDF</button>
+</div>
+
+<script>
+let loadedPDF = null;
+
+function previewPDF() {
+    const file = document.getElementById("pdfFile").files[0];
+    if (!file) return alert("Please select a PDF");
+
+    const text = document.getElementById("addText").value;
+    const pageNum = parseInt(document.getElementById("pageNumber").value);
+
+    const viewerURL = "../viewer.html?file=" + URL.createObjectURL(file) +
+                      "&text=" + encodeURIComponent(text) +
+                      "&page=" + pageNum;
+
+    window.open(viewerURL, "_blank");
+}
+
+async function downloadEditedPDF() {
+    const file = document.getElementById("pdfFile").files[0];
+    if (!file) return alert("Please select a PDF");
+
+    const text = document.getElementById("addText").value;
+    const pageNum = parseInt(document.getElementById("pageNumber").value);
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+    const pdfDoc = new jspdf.jsPDF();
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.5 });
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        // Add canvas to PDF
+        const imageData = canvas.toDataURL("image/jpeg");
+        if (i > 1) pdfDoc.addPage();
+        pdfDoc.addImage(imageData, "JPEG", 0, 0, 210, 297);
+
+        if (i === pageNum) {
+            pdfDoc.setFontSize(20);
+            pdfDoc.text(text, 20, 40); // Add text
+        }
+    }
+
+    pdfDoc.save("Edited.pdf");
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JPG to PDF Converter</title>
+    <script src="../assets/jspdf.min.js"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        #preview img { width: 200px; margin: 10px; border: 1px solid #ccc; }
+        .btn { padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<h2>JPG → PDF Converter</h2>
+
+<input type="file" id="jpgFiles" accept="image/*" multiple><br><br>
+<button class="btn" onclick="convertJPGtoPDF()">Convert JPG → PDF</button>
+
+<h3>Preview:</h3>
+<div id="preview"></div>
+
+<button class="btn" id="downloadBtn" style="display:none;" onclick="downloadPDF()">Download PDF</button>
+<button class="btn" id="viewBtn" style="display:none;" onclick="viewPDF()">View PDF</button>
+
+<script>
+let finalPDF = null;
+
+function convertJPGtoPDF() {
+    let files = document.getElementById("jpgFiles").files;
+    if (!files.length) return alert("Select JPG images!");
+
+    document.getElementById("preview").innerHTML = "";
+    const pdf = new jspdf.jsPDF("p", "mm", "a4");
+    let first = true;
+
+    let process = Array.from(files).map((file, idx) => {
+        return new Promise(resolve => {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let img = new Image();
+                img.src = e.target.result;
+
+                img.onload = function() {
+                    // preview
+                    let previewImg = document.createElement("img");
+                    previewImg.src = e.target.result;
+                    document.getElementById("preview").appendChild(previewImg);
+
+                    let width = pdf.internal.pageSize.getWidth();
+                    let height = (img.height / img.width) * width;
+
+                    if (!first) pdf.addPage();
+                    pdf.addImage(img, "JPEG", 0, 0, width, height);
+                    first = false;
+                    resolve();
+                };
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    Promise.all(process).then(() => {
+        finalPDF = pdf;
+        document.getElementById("downloadBtn").style.display = "inline-block";
+        document.getElementById("viewBtn").style.display = "inline-block";
+    });
+}
+
+function downloadPDF() {
+    if (!finalPDF) return;
+    finalPDF.save("JPG_to_PDF.pdf");
+}
+
+function viewPDF() {
+    if (!finalPDF) return;
+    window.open(finalPDF.output("bloburl"), "_blank");
+}
+</script>
+
+</body>
+</html>
