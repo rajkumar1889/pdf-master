@@ -1,8 +1,282 @@
-body {font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4;}
-header {background: #333; color: white; text-align: center; padding: 20px;}
-header p {margin: 5px 0 0;}
-main {padding: 20px;}
-section {background: white; margin: 20px 0; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
-input, button, select {padding: 10px; margin: 5px 0;}
-button {cursor: pointer;}
-hr {margin: 20px 0;}
+/*==============css file ===================*/
+/* ===== Global Reset & Variables ===last me cheng ging 2025 == */
+:root {
+    --bg-main: #0b1120;
+    --bg-glass: rgba(255, 255, 255, 0.06);
+    --border-glass: rgba(255, 255, 255, 0.12);
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+/* title  home ka */
+#title span {
+  position: relative;
+  cursor: pointer;
+  margin: 0 4px;
+  transition: 0.3s;
+}
+
+#title span::after {
+  content: attr(data-hover);
+  position: absolute;
+  top: 100%; /* span ke neeche */
+  left: 0;
+  color: #38bdf8;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: 0.3s;
+}
+
+#title span:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* ===============================Body============= beckground color=================== */
+body {
+    background: linear-gradient(180deg, #10030b, #00000a);
+    color: var(--text-main);
+    line-height: 1.65;
+}
+/* ===============================Header================================ */
+header {
+    text-align: center;
+    padding: 60px 20px 50px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border-glass);
+}
+/* head word size */
+header h1 {
+    font-size: 36px;
+    font-weight: 600;
+    color: #38bdf8;
+}
+
+header p {
+    margin-top: 10px;
+    font-size: 15px;
+    color: var(--text-muted);
+}
+
+/* ===============================Cards Container================================ */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 28px;
+    max-width: 1250px;
+    width: 92%;
+    margin: 60px auto;
+}
+
+/* ===============================Tool Card (Base)================================ */
+.card {
+    --glow: #38bdf8; /* default glow */
+/* box ka color */
+    background: linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.09),
+        rgba(235, 13, 216, 0.03)
+    );
+    border-radius: 20px;
+    padding: 30px 24px;
+    border: 1px solid rgba(38, 19, 203, 0.671);/* box ki  line */
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s ease;
+}
+
+/* Glow Layer */
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at top,
+        var(--glow),
+        transparent 70%
+    );
+    opacity: 0;
+    transition: 0.35s;
+    pointer-events: none;
+}
+
+/* Top Highlight Line */
+.card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, var(--glow), transparent);
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.card:hover::before,
+.card:hover::after {
+    opacity: 1;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    border-color: var(--glow);
+    box-shadow:
+        0 20px 45px rgba(0, 0, 0, 0.45),
+        0 0 25px var(--glow);
+}
+
+/* ===============================Card Content================================ */
+.card h2 {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--glow);
+    margin-bottom: 12px;
+}
+
+.card p {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* ===============================DIFFERENT COLORS PER CARD ================================ */
+.card:nth-child(1) { --glow: #ed0b0b; } /* Blue */
+.card:nth-child(2) { --glow: #22c55e; } /* Green */
+.card:nth-child(3) { --glow: #f97316; } /* Orange */
+.card:nth-child(4) { --glow: #a855f7; } /* Purple */
+.card:nth-child(5) { --glow: #f2eded; } /* Red */
+.card:nth-child(6) { --glow: #eab308; } /* Yellow */
+.card:nth-child(7) { --glow: #3fa107; } /* Cyan */
+.card:nth-child(8) { --glow: #ec4899; } /* Pink */
+.card:nth-child(9) { --glow: #3fa107; } /* Cyan */
+.card:nth-child(10) { --glow: #020a7e; } /* Pink */
+.card:nth-child(11) { --glow: #3fa107; } /* Cyan */
+.card:nth-child(12) { --glow: #0c837b; } /* Pink */
+.card:nth-child(13) { --glow: #0a40e3; } /* Cyan */
+.card:nth-child(14) { --glow: #df0a75; } /* Pink */
+.card:nth-child(15) { --glow: #61ff05; } /* Cyan */
+.card:nth-child(16) { --glow: #955876; } /* Pink */
+.card:nth-child(17) { --glow: #551919; } /* Cyan */
+.card:nth-child(18) { --glow: #3fa107; } /* Cyan */
+.card:nth-child(19) { --glow: #ec4899; } /* Pink */
+
+
+/* ===============================Tool Container================================ */
+.tool-container {
+    display: none;
+    max-width: 920px;
+    margin: 30px auto 80px;
+    padding: 36px;
+    background: var(--bg-glass);
+    border-radius: 22px;
+    border: 1px solid var(--border-glass);
+    backdrop-filter: blur(18px);
+}
+
+/* ===============================Form Controls================================ */
+.toolBox input,
+.toolBox textarea,
+.toolBox select {
+    width: 100%;
+    padding: 13px 16px;
+    margin: 16px 0;
+    border-radius: 12px;
+    border: 1px solid var(--border-glass);
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: 0.25s;
+}
+
+.toolBox input::placeholder,
+.toolBox textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.toolBox input:focus,
+.toolBox textarea:focus,
+.toolBox select:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35);
+}
+
+/* ===============================Primary Button================================ */
+.toolBox button {
+    margin-top: 18px;
+    padding: 14px;
+    width: 100%;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    color: #020617;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toolBox button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 35px rgba(14, 165, 233, 0.45);
+}
+
+/* ===============================Hide "Choose file / No file chosen" text================================ */
+input[type="file"] {
+    color: transparent;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+    color: #020617;
+}
+
+input[type="file"]::file-selector-button {
+    color: #020617;
+}
+
+/* =============================== Footer================================ */
+footer {
+    text-align: center;
+    padding: 30px 15px;
+    font-size: 14px;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
+    border-top: 1px solid var(--border-glass);
+}
+
+/*===============================  second file ====*/
+/* ===============================Header (Updated)================================ */
+header {
+    text-align: center;
+    padding: 60px 20px 50px;
+    background: linear-gradient(135deg, #0943d4, #1438dc);/* head ka box ka color */
+    border-bottom: 2px solid rgba(252, 246, 250, 0.792); /*head ki line */
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(217, 13, 13, 0.263);/* head ke line ke niche color */
+}
+
+header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    color: #f8f2ef;/* text color head ka */
+    text-shadow: 2px 2px 8px rgba(240, 67, 15, 0.6); /* text ke pichhe ka color*/
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 12px;
+}
+
+header p {
+    font-size: 15px;
+    color: #924209;/* text color nichhe bala head me */
+    font-style: italic;
+    text-shadow: 1px 1px 4px rgba(67, 215, 13, 0.4);
+}
