@@ -1,0 +1,8 @@
+body {font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4;}
+header {background: #333; color: white; text-align: center; padding: 20px;}
+header p {margin: 5px 0 0;}
+main {padding: 20px;}
+section {background: white; margin: 20px 0; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+input, button, select {padding: 10px; margin: 5px 0;}
+button {cursor: pointer;}
+hr {margin: 20px 0;}
