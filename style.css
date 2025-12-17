@@ -1,4 +1,3 @@
-/*==============css file ===================*/
 /* ===== Global Reset & Variables ===last me cheng ging 2025 == */
 :root {
     --bg-main: #0b1120;
@@ -14,7 +13,35 @@
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
 }
-/* title  home ka */
+/* ===============================Body============= beckground color=================== */
+body {
+    background: linear-gradient(180deg, #10030b, #00000a);
+    color: var(--text-main);
+    line-height: 1.65;
+}
+
+/* ===============================Header================================ */
+header {
+    text-align: center;
+    padding: 60px 20px 50px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border-glass);
+}
+/* head word size */
+header h1 {
+    font-size: 36px;
+    font-weight: 600;
+    color: #38bdf8;
+}
+
+header p {
+    margin-top: 10px;
+    font-size: 15px;
+    color: var(--text-muted);
+}
+
+/* =============================== Title Span Hover ============================== */
 #title span {
   position: relative;
   cursor: pointer;
@@ -39,32 +66,6 @@
   opacity: 1;
   transform: translateY(0);
 }
-/* ===============================Body============= beckground color=================== */
-body {
-    background: linear-gradient(180deg, #10030b, #00000a);
-    color: var(--text-main);
-    line-height: 1.65;
-}
-/* ===============================Header================================ */
-header {
-    text-align: center;
-    padding: 60px 20px 50px;
-    background: var(--bg-glass);
-    backdrop-filter: blur(18px);
-    border-bottom: 1px solid var(--border-glass);
-}
-/* head word size */
-header h1 {
-    font-size: 36px;
-    font-weight: 600;
-    color: #38bdf8;
-}
-
-header p {
-    margin-top: 10px;
-    font-size: 15px;
-    color: var(--text-muted);
-}
 
 /* ===============================Cards Container================================ */
 .cards-container {
@@ -78,13 +79,8 @@ header p {
 
 /* ===============================Tool Card (Base)================================ */
 .card {
-    --glow: #38bdf8; /* default glow */
-/* box ka color */
-    background: linear-gradient(
-        160deg,
-        rgba(255, 255, 255, 0.09),
-        rgba(235, 13, 216, 0.03)
-    );
+    --glow: #38bdf8; /* default glow *//* box ka color */
+    background: linear-gradient(160deg,rgba(255, 255, 255, 0.09),rgba(235, 13, 216, 0.03));
     border-radius: 20px;
     padding: 30px 24px;
     border: 1px solid rgba(38, 19, 203, 0.671);/* box ki  line */
@@ -100,11 +96,7 @@ header p {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-        circle at top,
-        var(--glow),
-        transparent 70%
-    );
+    background: radial-gradient(circle at top,var(--glow),transparent 70%);
     opacity: 0;
     transition: 0.35s;
     pointer-events: none;
@@ -131,9 +123,7 @@ header p {
 .card:hover {
     transform: translateY(-6px);
     border-color: var(--glow);
-    box-shadow:
-        0 20px 45px rgba(0, 0, 0, 0.45),
-        0 0 25px var(--glow);
+    box-shadow:0 20px 45px rgba(0, 0, 0, 0.45),0 0 25px var(--glow);
 }
 
 /* ===============================Card Content================================ */
@@ -170,19 +160,6 @@ header p {
 .card:nth-child(18) { --glow: #3fa107; } /* Cyan */
 .card:nth-child(19) { --glow: #ec4899; } /* Pink */
 
-
-/* ===============================Tool Container================================ */
-.tool-container {
-    display: none;
-    max-width: 920px;
-    margin: 30px auto 80px;
-    padding: 36px;
-    background: var(--bg-glass);
-    border-radius: 22px;
-    border: 1px solid var(--border-glass);
-    backdrop-filter: blur(18px);
-}
-
 /* ===============================Form Controls================================ */
 .toolBox input,
 .toolBox textarea,
@@ -198,7 +175,6 @@ header p {
     outline: none;
     transition: 0.25s;
 }
-
 .toolBox input::placeholder,
 .toolBox textarea::placeholder {
     color: var(--text-muted);
@@ -210,7 +186,6 @@ header p {
     border-color: #38bdf8;
     box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35);
 }
-
 /* ===============================Primary Button================================ */
 .toolBox button {
     margin-top: 18px;
@@ -254,7 +229,18 @@ footer {
     border-top: 1px solid var(--border-glass);
 }
 
-/*===============================  second file ====*/
+/* ===============================Tool Container================================ */
+.tool-container {
+    display: none;
+    max-width: 920px;
+    margin: 30px auto 80px;
+    padding: 36px;
+    background: var(--bg-glass);
+    border-radius: 22px;
+    border: 1px solid var(--border-glass);
+    backdrop-filter: blur(18px);
+}
+
 /* ===============================Header (Updated)================================ */
 header {
     text-align: center;
@@ -280,3 +266,4 @@ header p {
     font-style: italic;
     text-shadow: 1px 1px 4px rgba(67, 215, 13, 0.4);
 }
+
