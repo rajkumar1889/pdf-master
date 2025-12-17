@@ -1,296 +1,353 @@
-// ---------- Setup for pdf.js worker ----------
-if (window.pdfjsLib) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js";
-}
+//===============================js file =========//
 
-// ---------- Any File placeholder ----------
-function anyFileConvert() {
-  let file = document.getElementById("fileUpload").files[0];
-  let format = document.getElementById("anyFileFormat").value;
-  if (!file) { alert("Select a file!"); return; }
-  alert(`Placeholder: ${file.name} → ${format}. Backend needed for real conversion.`);
-  document.getElementById("anyFileResult").innerText = `Converted ${file.name} to ${format} (placeholder).`;
-}
 
-// ---------- Image Convert (PNG/JPG) ----------
-function convertImage() {
-  let file = document.getElementById("imageFile").files[0];
-  let format = document.getElementById("format").value;
-  if (!file || !file.type.startsWith("image/")) { alert("Select an image!"); return; }
-  let reader = new FileReader();
-  reader.onload = function (e) {
-    let img = new Image(); img.src = e.target.result;
-    img.onload = function () {
-      let canvas = document.createElement("canvas");
-      canvas.width = img.width; canvas.height = img.height;
-      let ctx = canvas.getContext("2d"); ctx.drawImage(img, 0, 0);
-      let dataURL = canvas.toDataURL(format, 0.9);
-      let link = document.createElement("a"); link.href = dataURL;
-      let ext = format === "image/png" ? "png" : "jpg"; link.download = "converted_image." + ext; link.click();
-      document.getElementById("imageResult").innerHTML = `<img src="${dataURL}" width="200">`;
-    };
-  };
-  reader.readAsDataURL(file);
-}
+<!-- ======================= JS Libraries ======================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-// ---------- PDF -> JPG (renders all pages, creates download links) ----------
-async function convertPdfToJpg() {
-  const input = document.getElementById("pdfFile");
-  const out = document.getElementById("pdfResult");
-  out.innerHTML = "";
-  if (!input.files || !input.files[0]) { alert("Select a PDF file!"); return; }
 
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = async function () {
-    try {
-      const typedarray = new Uint8Array(this.result);
-      const pdf = await pdfjsLib.getDocument(typedarray).promise;
-      const total = pdf.numPages;
-      out.innerHTML = `<p>PDF loaded, ${total} page(s). Rendering...</p>`;
-      for (let p = 1; p <= total; p++) {
-        const page = await pdf.getPage(p);
-        const scale = 2; // increase for higher quality
-        const viewport = page.getViewport({ scale });
-        const canvas = document.createElement("canvas");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext("2d");
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-        // create download link and preview
-        const div = document.createElement("div");
-        div.innerHTML = `<p>Page ${p}:</p>`;
-        const img = document.createElement("img"); img.src = dataUrl; img.width = 200;
-        const a = document.createElement("a"); a.href = dataUrl; a.download = `page-${p}.jpg`; a.innerText = "Download JPG";
-        div.appendChild(img); div.appendChild(document.createElement("br")); div.appendChild(a);
-        out.appendChild(div);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error processing PDF: " + err.message);
+
+//=====================second===============
+<script>
+function convertPdfToJpg(file){
+    if(!file){alert('Select PDF');return;}
+    let reader=new FileReader();
+    reader.onload=function(e){
+        pdfjsLib.getDocument({data:e.target.result}).promise.then(pdf=>{
+            for(let i=1;i<=pdf.numPages;i++){
+                pdf.getPage(i).then(page=>{
+                    let viewport=page.getViewport({scale:2});
+                    let canvas=document.createElement('canvas');
+                    canvas.width=viewport.width;
+                    canvas.height=viewport.height;
+                    page.render({canvasContext:canvas.getContext('2d'),viewport:viewport}).promise.then(()=>{
+                        let link=document.createElement('a');
+                        link.href=canvas.toDataURL('image/jpeg');
+                        link.download=`page_${i}.jpg`;
+                        link.click();
+                    });
+                });
+            }
+        });
     }
-  };
-  reader.readAsArrayBuffer(file);
+    reader.readAsArrayBuffer(file);
+}
+/* JPG → PDF */
+async function convertJpgToPdf(files){
+    if(!files.length){alert('Select JPG files');return;}
+    const { jsPDF } = window.jspdf;
+    let pdf=new jsPDF("p","mm","a4");
+    for(let i=0;i<files.length;i++){
+        let img=await fileToDataURL(files[i]);
+        pdf.addImage(img,'JPEG',10,10,180,240);
+        if(i<files.length-1) pdf.addPage();
+    }
+    pdf.save('converted.pdf');
+}
+function fileToDataURL(file){
+    return new Promise(res=>{
+        let reader=new FileReader();
+        reader.onload=()=>res(reader.result);
+        reader.readAsDataURL(file);
+    });
 }
 
-/* ------------------- JPG → PDF with VIEW ------------------ */
+/* PNG ↔ JPG */
+function convertImage(file){
+    if(!file){alert('Select Image');return;}
+    let reader=new FileReader();
+    reader.onload=function(e){
+        let img=new Image();
+        img.src=e.target.result;
+        img.onload=function(){
+            let canvas=document.createElement('canvas');
+            canvas.width=img.width;
+            canvas.height=img.height;
+            canvas.getContext('2d').drawImage(img,0,0);
+            let ext=file.type==='image/png'?'image/jpeg':'image/png';
+            let link=document.createElement('a');
+            link.href=canvas.toDataURL(ext);
+            link.download='converted.'+(ext==='image/png'?'png':'jpg');
+            link.click();
+        }
+    }
+    reader.readAsDataURL(file);
+}
 
-function previewJpg() {
-    let files = document.getElementById("jpgToPdf").files;
-    let preview = document.getElementById("jpgPreview");
-    preview.innerHTML = "";
+/* BMI */
+function calcBMIPrompt(){
+    let w=prompt('Enter weight (kg):');
+    let h=prompt('Enter height (cm):');
+    if(!w||!h) return;
+    alert('BMI = '+(w/(h/100*h/100)).toFixed(2));
+}
 
-    if (!files.length) {
-        alert("Select images first");
+/* Age */
+function calcAgePrompt(){
+    let dob=prompt('Enter birthdate (YYYY-MM-DD):');
+    if(!dob) return;
+    let age=new Date(Date.now()-new Date(dob).getTime()).getUTCFullYear()-1970;
+    alert('Age = '+age+' years');
+}
+
+/* QR Generator */
+function generateQRPrompt(){
+    let txt=prompt('Enter text or URL:');
+    if(!txt) return;
+    let qr=new QRious({element:document.createElement('canvas'),value:txt,size:200});
+    let link=document.createElement('a');
+    link.href=qr.toDataURL();
+    link.download='qr.png';
+    link.click();
+}
+
+/* QR Scanner */
+function scanQRPrompt(){
+    let input=document.createElement('input');
+    input.type='file';
+    input.accept='image/*';
+    input.onchange=function(){
+        let file=this.files[0];
+        if(!file) return;
+        let reader=new FileReader();
+        reader.onload=function(e){
+            let img=new Image();
+            img.src=e.target.result;
+            img.onload=function(){
+                let canvas=document.createElement('canvas');
+                canvas.width=img.width;
+                canvas.height=img.height;
+                let ctx=canvas.getContext('2d');
+                ctx.drawImage(img,0,0);
+                let code=jsQR(ctx.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height);
+                alert(code ? "QR Scanned: "+code.data : "QR not detected");
+            }
+        }
+        reader.readAsDataURL(file);
+    }
+    input.click();
+}
+
+</script>
+
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>-->
+
+<!--<script>
+function generateTextLink() {
+    let text = document.getElementById("textInput").value;
+    if (!text) { alert("Text likho!"); return; }
+
+    let encoded = encodeURIComponent(text);
+    let link = window.location.origin + window.location.pathname + "?text=" + encoded;
+
+    document.getElementById("generatedLink").value = link;
+
+    const qrContainer = document.getElementById("textQr");
+    qrContainer.innerHTML = ""; // clear old QR
+
+    // Create QR code
+    const qr = new QRCode(qrContainer, {
+        text: link,
+        width: 200,
+        height: 180
+    });
+
+    // Add download button **outside** QR canvas
+    setTimeout(() => {
+        let downloadBtn = document.getElementById("downloadQrBtn");
+        if (!downloadBtn) {
+            downloadBtn = document.createElement("button");
+            downloadBtn.id = "downloadQrBtn";
+            downloadBtn.innerText = "Download QR";
+            downloadBtn.style.marginTop = "10px";
+            downloadBtn.onclick = () => {
+                const canvas = qrContainer.querySelector("canvas");
+                if (canvas) {
+                    const url = canvas.toDataURL("image/png");
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "text_link_qr.png";
+                    a.click();
+                }
+            };
+            qrContainer.parentNode.appendChild(downloadBtn); // outside canvas
+        }
+    }, 100);
+}
+
+function copyLink() {
+    let input = document.getElementById("generatedLink");
+    input.select();
+    document.execCommand("copy");
+    alert("Link copied!");
+}
+
+window.onload = function () {
+    let params = new URLSearchParams(window.location.search);
+    let text = params.get("text");
+    if (text) {
+        alert("Text from link:\n\n" + decodeURIComponent(text));
+    }
+};
+function openTextToLink(){
+    document.getElementById("tool_textToLink").style.display = "block";
+    window.scrollTo({
+        top: document.getElementById("tool_textToLink").offsetTop - 20,
+        behavior: "smooth"
+    });
+
+}
+</script>-->
+
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>-->
+
+<script>
+function generateTextLink() {
+    let text = document.getElementById("textInput").value;
+    if (!text) {
+        alert("Text likho!");
         return;
     }
 
-    [...files].forEach(file => {
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            let img = document.createElement("img");
-            img.src = e.target.result;
-            img.width = 120;
-            img.style.border = "1px solid #ccc";
-            img.style.borderRadius = "5px";
-            preview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
+    let encoded = encodeURIComponent(text);
+    let link = window.location.origin + window.location.pathname + "?text=" + encoded;
+
+    document.getElementById("generatedLink").value = link;
+
+    document.getElementById("textQr").innerHTML = "";
+    new QRCode(document.getElementById("textQr"), {
+        text: link,
+        width: 200,
+        height: 200
     });
 }
 
-async function convertJpgToPdf() {
-    const { jsPDF } = window.jspdf;
-    let pdf = new jsPDF();
-
-    let files = document.getElementById("jpgToPdf").files;
-    if (!files.length) return alert("Select JPG images!");
-
-    for (let i = 0; i < files.length; i++) {
-        let imgData = await fileToDataURL(files[i]);
-        pdf.addImage(imgData, 'JPEG', 10, 10, 180, 250);
-
-        if (i < files.length - 1)
-            pdf.addPage();
-    }
-
-    pdf.save("converted.pdf");
-    document.getElementById("jpgPdfResult").innerHTML = "✔ PDF Generated & Downloaded!";
+function copyLink() {
+    let input = document.getElementById("generatedLink");
+    input.select();
+    document.execCommand("copy");
+    alert("Link copied!");
 }
 
-function fileToDataURL(file) {
-    return new Promise(res => {
-        let reader = new FileReader();
-        reader.onload = () => res(reader.result);
-        reader.readAsDataURL(file);
+window.onload = function () {
+    let params = new URLSearchParams(window.location.search);
+    let text = params.get("text");
+    if (text) {
+        alert("Text from link:\n\n" + decodeURIComponent(text));
+    }
+};
+function openTextToLink(){
+    document.getElementById("tool_textToLink").style.display = "block";
+    window.scrollTo({
+        top: document.getElementById("tool_textToLink").offsetTop - 20,
+        behavior: "smooth"
+    });
+
+}
+</script>
+
+<script>// Tool ko open karne ke liye (common function)
+function openTool(toolName) {
+    let tools = document.querySelectorAll(".toolBox");
+    tools.forEach(t => t.style.display = "none");
+
+    let el = document.getElementById("tool_" + toolName);
+    if(el) el.style.display = "block";
+
+    window.scrollTo({
+        top: el.offsetTop - 20,
+        behavior: "smooth"
     });
 }
+</script>
 
+<script>
+document.getElementById("imgQRInput").addEventListener("change", function () {
 
-  // load each image sequentially
-  let first = true;
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const dataUrl = await readFileAsDataURL(file);
-    const img = await createImage(dataUrl);
-    const imgProps = pdf.getImageProperties(dataUrl);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (img.height * pdfWidth) / img.width;
-    if (!first) pdf.addPage();
-    pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-    first = false;
-  }
-  pdf.save("converted_images.pdf");
-  out.innerText = "JPG(s) converted to PDF and downloaded.";
-
-
-function readFileAsDataURL(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-}
-function createImage(src) {
-  return new Promise((res, rej) => {
-    const img = new Image();
-    img.onload = () => res(img);
-    img.onerror = rej;
-    img.src = src;
-  });
-}
-
-// ---------- PDF Compress (basic front-end): re-render pages to JPEG at given quality and rebuild PDF ----------
-async function compressPdf() {
-  const input = document.getElementById("compressPdfFile");
-  const out = document.getElementById("compressResult");
-  out.innerHTML = "";
-  if (!input.files || !input.files[0]) { alert("Select a PDF file!"); return; }
-  let quality = parseFloat(document.getElementById("compressQuality").value);
-  if (isNaN(quality) || quality <= 0 || quality > 1) { alert("Enter quality between 0.1 and 1.0"); return; }
-
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = async function () {
-    try {
-      const typedarray = new Uint8Array(this.result);
-      const pdfOriginal = await pdfjsLib.getDocument(typedarray).promise;
-      const total = pdfOriginal.numPages;
-      out.innerHTML = `<p>Compressing ${total} page(s)... This may take time.</p>`;
-      const { jsPDF } = window.jspdf;
-      const pdfNew = new jsPDF();
-      let first = true;
-      for (let p = 1; p <= total; p++) {
-        const page = await pdfOriginal.getPage(p);
-        const scale = 1.5; // lower/higher influences quality/size
-        const viewport = page.getViewport({ scale });
-        const canvas = document.createElement("canvas");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext("2d");
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        // get compressed JPEG dataURL
-        const jpegDataUrl = canvas.toDataURL("image/jpeg", quality);
-        // add to PDF (fit to page width)
-        const pdfWidth = pdfNew.internal.pageSize.getWidth();
-        const img = await createImage(jpegDataUrl);
-        const pdfHeight = (img.height * pdfWidth) / img.width;
-        if (!first) pdfNew.addPage();
-        pdfNew.addImage(jpegDataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        first = false;
-      }
-      pdfNew.save("compressed.pdf");
-      out.innerText = "Compression complete — downloaded compressed.pdf";
-    } catch (err) {
-      console.error(err);
-      alert("Error during compression: " + err.message);
+    const file = this.files[0];
+    if (!file) {
+        alert("Image select karo");
+        return;
     }
-  };
-  reader.readAsArrayBuffer(file);
-}
 
-// ---------- QR Generate & Download ----------
-function generateQRCode() {
-  const text = document.getElementById("qrText").value;
-  const out = document.getElementById("qrResult");
-  out.innerHTML = "";
-  if (!text) { alert("Enter text or URL to encode"); return; }
-  new QRCode(out, { text, width: 200, height: 200, colorDark: "#000", colorLight: "#fff" });
-}
-function downloadQRCode() {
-  const img = document.querySelector("#qrResult img");
-  const canvas = document.querySelector("#qrResult canvas");
-  let url = null;
-  if (img) url = img.src;
-  else if (canvas) url = canvas.toDataURL("image/png");
-  if (!url) { alert("Generate QR first"); return; }
-  const a = document.createElement("a"); a.href = url; a.download = "qrcode.png"; a.click();
-}
+    const reader = new FileReader();
+    reader.onload = function (e) {
 
-// ---------- QR Scan from image ----------
-function scanQRCode() {
-  const input = document.getElementById("qrFile");
-  const out = document.getElementById("qrScanResult");
-  out.innerText = "";
-  if (!input.files || !input.files[0]) { alert("Select an image with a QR code"); return; }
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const img = new Image();
-    img.onload = function () {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width; canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, canvas.width, canvas.height);
-      if (code) out.innerText = "QR Code Text: " + code.data;
-      else out.innerText = "No QR code detected in image.";
+        const imageData = e.target.result;
+
+        // Show preview
+        const preview = document.getElementById("imgPreview");
+        preview.src = imageData;
+        preview.style.display = "block";
+
+        // Generate QR
+        const qrContainer = document.getElementById("imgQR");
+        qrContainer.innerHTML = "";
+
+        new QRCode(qrContainer, {
+            text: imageData,
+            width: 200,
+            height: 200
+        });
     };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+
+    reader.readAsDataURL(file);
+});
+</script>
+
+<!--// Edit PDF function-->
+
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>-->
+<script>
+async function editPdf() {
+    const fileInput = document.getElementById('editPdfInput');
+    const textInput = document.getElementById('editPdfText').value.trim();
+
+    if (!fileInput.files.length) { 
+        alert("PDF select karo!"); 
+        return; 
+    }
+
+    if (!textInput) {
+        alert("Text likho!");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const arrayBuffer = await file.arrayBuffer();
+
+    // Load PDF with pdf-lib
+    const { PDFDocument, rgb } = PDFLib;
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+    // Get first page
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+
+    // Add text
+    firstPage.drawText(textInput, {
+        x: 50,
+        y: firstPage.getHeight() - 50,
+        size: 14,
+        color: rgb(0, 0.53, 0.8), // blue-ish color
+    });
+
+    // Save edited PDF
+    const pdfBytes = await pdfDoc.save();
+
+    // Download
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'edited.pdf';
+    link.click();
+
+    document.getElementById('editPdfPreview').innerText = "Text added and PDF downloaded!";
 }
-
-
-// ---------- Small tools ----------
-function calculateBMI() {
-  const w = parseFloat(document.getElementById("bmiWeight").value);
-  const h = parseFloat(document.getElementById("bmiHeight").value);
-  if (!w || !h) { alert("Enter weight (kg) and height (cm)"); return; }
-  const heightM = h / 100;
-  const bmi = w / (heightM * heightM);
-  document.getElementById("bmiResult").innerText = `BMI: ${bmi.toFixed(2)}`;
-}
-function calculateAge() {
-  const v = document.getElementById("birthDate").value;
-  if (!v) { alert("Select birth date"); return; }
-  const b = new Date(v);
-  const now = new Date();
-  let age = now.getFullYear() - b.getFullYear();
-  const m = now.getMonth() - b.getMonth();
-  if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
-  document.getElementById("ageResult").innerText = `Age: ${age} years`;
-}
-function createLink() {
-  let text = document.getElementById("linkText").value.trim();
-  let result = document.getElementById("linkResult");
-
-  if (!text) {
-    alert("Enter text or URL");
-    return;
-  }
-
-  // अगर http / https नहीं है तो auto add करो
-  if (!text.startsWith("http://") && !text.startsWith("https://")) {
-    text = "https://" + text;
-  }
-
-  result.innerHTML = `
-    <p>Generated Link:</p>
-    <a href="${text}" target="_blank">${text}</a>
-  `;
-}
+</script>
