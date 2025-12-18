@@ -1,38 +1,38 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
-function convertPdfToJpg(file){
-    if(!file){alert('Select PDF'); return;}
-    let reader = new FileReader();
-    reader.onload = function(e){
-        pdfjsLib.getDocument({data: e.target.result}).promise.then(pdf=>{
-            const zip = new JSZip();
-            let processed = 0;
+// PDF → JPG Function
+async function convertPDFtoJPG(file) {
+    if (!file) return alert("Select a PDF file!");
 
-            for(let i=1; i <= pdf.numPages; i++){
-                pdf.getPage(i).then(page=>{
-                    let viewport = page.getViewport({scale:2});
-                    let canvas = document.createElement('canvas');
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
+    const previewDiv = document.getElementById("pdfJpgPreview");
+    previewDiv.innerHTML = "Processing PDF…";
 
-                    page.render({canvasContext: canvas.getContext('2d'), viewport: viewport}).promise.then(()=>{
-                        canvas.toBlob(blob=>{
-                            zip.file(`page_${i}.jpg`, blob);
-                            processed++;
+    let fileReader = new FileReader();
+    fileReader.onload = async function() {
+        let typedarray = new Uint8Array(this.result);
 
-                            // After last page processed, generate ZIP
-                            if(processed === pdf.numPages){
-                                zip.generateAsync({type:"blob"}).then(content=>{
-                                    saveAs(content, "converted_pages.zip");
-                                });
-                            }
-                        }, 'image/jpeg', 0.95);
-                    });
-                });
-            }
-        });
-    }
-    reader.readAsArrayBuffer(file);
+        let pdf = await pdfjsLib.getDocument(typedarray).promise;
+        previewDiv.innerHTML = "";
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+            let page = await pdf.getPage(i);
+            let viewport = page.getViewport({ scale: 2 });
+            let canvas = document.createElement("canvas");
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            await page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport }).promise;
+
+            let imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+            let img = document.createElement("img");
+            img.src = imgData;
+            previewDiv.appendChild(img);
+        }
+    };
+
+    fileReader.readAsArrayBuffer(file);
 }
+
 
 /**************** JPG → PDF ****************/
 async function convertJpgToPdf(files) {
@@ -201,5 +201,6 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
