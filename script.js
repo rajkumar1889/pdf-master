@@ -1,11 +1,11 @@
-// ✅ WORKER SET (MANDATORY)
+// ⚠️ Worker MUST match pdf.js version
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 
-// ✅ PDF → JPG
+// PDF → JPG function
 async function convertPDFtoJPG(file) {
     if (!file) {
-        alert("Select PDF");
+        alert("Select PDF file");
         return;
     }
 
@@ -44,6 +44,7 @@ async function convertPDFtoJPG(file) {
 
     reader.readAsArrayBuffer(file);
 }
+
 
 
 /**************** JPG → PDF ****************/
@@ -271,6 +272,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
