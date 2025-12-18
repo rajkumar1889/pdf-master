@@ -1,84 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>PDF to JPG Converter</title>
-    <script src="../assets/pdf.worker.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <style>
-        body { font-family: Arial; padding: 20px; }
-        #preview img { width: 200px; margin: 10px; border: 1px solid #ccc; }
-        .btn { padding: 10px; background: #007bff; color: #fff; border: none; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF to JPG Converter</title>
+
+<!-- PDF.js Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"></script>
+
+<!-- JS File -->
+<script src="script.js"></script>
+
+<style>
+    body { font-family: Arial; padding: 20px; }
+    #pdfJpgPreview img { width: 200px; margin: 10px; border: 1px solid #ccc; }
+    .btn { padding: 10px; background: #007bff; color: #fff; border: none; cursor: pointer; margin-top:10px; }
+</style>
 </head>
 <body>
 
-<h2>PDF → JPG (All Pages)</h2>
+<h2>PDF → JPG Converter</h2>
 
-<input type="file" id="pdfFile" accept="application/pdf"><br><br>
-<button class="btn" onclick="convertPDFtoJPG()">Convert PDF → JPG</button>
+<input type="file" id="pdfToJpgInput" accept="application/pdf"><br>
+<button class="btn" onclick="convertPDFtoJPG(document.getElementById('pdfToJpgInput').files[0])">Convert PDF → JPG</button>
 
 <h3>Preview:</h3>
-<div id="preview"></div>
-
-<button class="btn" id="downloadZipBtn" style="display:none;" onclick="downloadZIP()">Download All JPG (ZIP)</button>
-
-<script>
-let jpgImages = [];
-
-async function convertPDFtoJPG() {
-    let file = document.getElementById("pdfFile").files[0];
-    if (!file) return alert("Select a PDF file!");
-
-    jpgImages = [];
-    document.getElementById("preview").innerHTML = "Processing PDF…";
-
-    let fileReader = new FileReader();
-    fileReader.onload = async function() {
-        let typedarray = new Uint8Array(this.result);
-
-        let pdf = await pdfjsLib.getDocument(typedarray).promise;
-        document.getElementById("preview").innerHTML = "";
-
-        for (let i = 1; i <= pdf.numPages; i++) {
-            let page = await pdf.getPage(i);
-            let viewport = page.getViewport({ scale: 2 });
-            let canvas = document.createElement("canvas");
-            let ctx = canvas.getContext("2d");
-
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-
-            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-
-            let imgData = canvas.toDataURL("image/jpeg", 1.0);
-            jpgImages.push(imgData);
-
-            let img = document.createElement("img");
-            img.src = imgData;
-            document.getElementById("preview").appendChild(img);
-        }
-
-        document.getElementById("downloadZipBtn").style.display = "block";
-    };
-    fileReader.readAsArrayBuffer(file);
-}
-
-function downloadZIP() {
-    let zip = new JSZip();
-    jpgImages.forEach((img, index) => {
-        zip.file("page_" + (index + 1) + ".jpg", img.split(",")[1], { base64: true });
-    });
-
-    zip.generateAsync({ type: "blob" }).then(function(content) {
-        let a = document.createElement("a");
-        a.href = URL.createObjectURL(content);
-        a.download = "pdf_to_jpg.zip";
-        a.click();
-    });
-}
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<div id="pdfJpgPreview"></div>
 
 </body>
 </html>
