@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text to Link</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        textarea { width: 400px; height: 100px; }
+        input { width: 400px; padding: 5px; }
+        button { padding: 10px; margin-top: 10px; cursor: pointer; }
+        #textQr canvas { margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<h2>📝 Text → Link & QR Generator</h2>
+
+<textarea id="textInput" placeholder="Yahan text likho..."></textarea><br>
+<button onclick="generateTextLink()">Generate Link</button><br><br>
+
+<input type="text" id="generatedLink" readonly><br><br>
+<div id="textQr"></div>
+
+<script>
+function generateTextLink() {
+    let text = document.getElementById("textInput").value.trim();
+    if(!text) return alert("Please enter some text!");
+
+    // Create a shareable link with text as parameter
+    let encodedText = encodeURIComponent(text);
+    let link = `${window.location.origin}/?text=${encodedText}`;
+
+    document.getElementById("generatedLink").value = link;
+
+    // Generate QR Code
+    const qrDiv = document.getElementById("textQr");
+    qrDiv.innerHTML = ""; // Clear previous QR
+    let qr = new QRious({
+        element: document.createElement('canvas'),
+        value: link,
+        size: 200,
+        level: 'H'
+    });
+    qrDiv.appendChild(qr.canvas);
+}
+</script>
+
+</body>
+</html>
