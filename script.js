@@ -1,48 +1,45 @@
-// PDF.js worker (version SAME as CDN)
+// ⚠️ PDF.js Worker
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 
-// PDF → JPG
-async function convertPdfToJpg(file) {
+// PDF → JPG converter function
+async function convertPDFtoJPG(file) {
     if (!file) {
-        alert("Please select a PDF");
+        alert("Select a PDF file!");
         return;
     }
 
-    const preview = document.getElementById("pdfJpgPreview");
-    preview.innerHTML = "Processing PDF...";
+    const previewDiv = document.getElementById("pdfJpgPreview");
+    previewDiv.innerHTML = "Processing PDF…";
 
     const reader = new FileReader();
-
     reader.onload = async function () {
         const typedArray = new Uint8Array(this.result);
         const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
 
-        preview.innerHTML = "";
+        previewDiv.innerHTML = "";
 
         for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const viewport = page.getViewport({ scale: 2 });
 
             const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            await page.render({
-                canvasContext: ctx,
-                viewport: viewport
-            }).promise;
+            const ctx = canvas.getContext("2d");
+            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
             const img = document.createElement("img");
             img.src = canvas.toDataURL("image/jpeg", 1.0);
-            preview.appendChild(img);
+
+            previewDiv.appendChild(img);
         }
     };
 
     reader.readAsArrayBuffer(file);
 }
+
 /**************** JPG → PDF ****************/
 async function convertJpgToPdf(files) {
   if (!files.length) {
@@ -268,6 +265,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
