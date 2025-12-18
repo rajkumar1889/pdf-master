@@ -49,6 +49,8 @@
         <!-- <p>Convert pages into high-quality JPG images.</p> -->
         <p> convord each PDF page into a JPG or extract all images contained ia a PDf </p>
         <input type="file" id="pdfToJpgInput" onchange="convertPdfToJpg(this.files[0])">
+        <!-- Preview -->
+        <div id="pdfJpgPreview" style="margin-top:20px;"></div>
     </div>
  
      <!-- JPG → PDF -->
@@ -65,8 +67,6 @@
         <h2>🖼 PNG ↔ JPG</h2>
         <p>Convert PNG to JPG or JPG to PNG instantly.</p>
         <input type="file" id="imgConvertInput" onchange="convertImage(this.files[0])">
-        <!-- Preview -->
-        <div id="pdfJpgPreview" style="margin-top:20px;">
     </div>
     
      <!-- JPG → PDF -->
@@ -203,6 +203,7 @@
 
 </body>
 </html>
+
 
 
 
