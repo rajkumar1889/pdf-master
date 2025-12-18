@@ -1,11 +1,11 @@
-// ⚠️ Worker MUST match pdf.js version
+// PDF.js worker (version SAME as CDN)
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 
-// PDF → JPG function
-async function convertPDFtoJPG(file) {
+// PDF → JPG
+async function convertPdfToJpg(file) {
     if (!file) {
-        alert("Select PDF file");
+        alert("Please select a PDF");
         return;
     }
 
@@ -16,8 +16,8 @@ async function convertPDFtoJPG(file) {
 
     reader.onload = async function () {
         const typedArray = new Uint8Array(this.result);
-
         const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+
         preview.innerHTML = "";
 
         for (let i = 1; i <= pdf.numPages; i++) {
@@ -37,16 +37,12 @@ async function convertPDFtoJPG(file) {
 
             const img = document.createElement("img");
             img.src = canvas.toDataURL("image/jpeg", 1.0);
-
             preview.appendChild(img);
         }
     };
 
     reader.readAsArrayBuffer(file);
 }
-
-
-
 /**************** JPG → PDF ****************/
 async function convertJpgToPdf(files) {
   if (!files.length) {
@@ -272,6 +268,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
