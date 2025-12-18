@@ -1,24 +1,24 @@
-// ✅ PDF.js worker (VERSION MATCH)
+// ✅ WORKER SET (MANDATORY)
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 
-// ✅ PDF → JPG Function
+// ✅ PDF → JPG
 async function convertPDFtoJPG(file) {
     if (!file) {
-        alert("Select a PDF file!");
+        alert("Select PDF");
         return;
     }
 
-    const previewDiv = document.getElementById("pdfJpgPreview");
-    previewDiv.innerHTML = "Processing PDF…";
+    const preview = document.getElementById("pdfJpgPreview");
+    preview.innerHTML = "Processing PDF...";
 
-    const fileReader = new FileReader();
+    const reader = new FileReader();
 
-    fileReader.onload = async function () {
-        const typedarray = new Uint8Array(this.result);
+    reader.onload = async function () {
+        const typedArray = new Uint8Array(this.result);
 
-        const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
-        previewDiv.innerHTML = "";
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+        preview.innerHTML = "";
 
         for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
@@ -37,15 +37,14 @@ async function convertPDFtoJPG(file) {
 
             const img = document.createElement("img");
             img.src = canvas.toDataURL("image/jpeg", 1.0);
-            img.style.width = "200px";
-            img.style.margin = "10px";
 
-            previewDiv.appendChild(img);
+            preview.appendChild(img);
         }
     };
 
-    fileReader.readAsArrayBuffer(file);
+    reader.readAsArrayBuffer(file);
 }
+
 
 /**************** JPG → PDF ****************/
 async function convertJpgToPdf(files) {
@@ -272,6 +271,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
