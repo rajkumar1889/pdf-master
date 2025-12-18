@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF to JPG Converter</title>
+<title>PDF → JPG Converter</title>
 
 <!-- PDF.js Library -->
- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <script>
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
-    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+</script>
 
 <!-- JS File -->
 <script src="script.js"></script>
 
 <style>
-    body { font-family: Arial; padding: 20px; }
-    #pdfJpgPreview img { width: 200px; margin: 10px; border: 1px solid #ccc; }
-    .btn { padding: 10px; background: #007bff; color: #fff; border: none; cursor: pointer; margin-top:10px; }
+body { font-family: Arial; padding: 20px; }
+#pdfJpgPreview img { width: 200px; margin: 10px; border: 1px solid #ccc; }
+.btn { padding: 10px; background: #007bff; color: #fff; border: none; cursor: pointer; margin-top:10px; }
 </style>
 </head>
 <body>
@@ -26,11 +26,12 @@
 <h2>PDF → JPG Converter</h2>
 
 <input type="file" id="pdfToJpgInput" accept="application/pdf"><br>
-<button class="btn" onclick="convertPDFtoJPG(document.getElementById('pdfToJpgInput').files[0])">Convert PDF → JPG</button>
+<button class="btn" onclick="convertPDFtoJPG(document.getElementById('pdfToJpgInput').files[0])">
+Convert PDF → JPG
+</button>
 
 <h3>Preview:</h3>
 <div id="pdfJpgPreview"></div>
 
 </body>
 </html>
-
