@@ -1,13 +1,13 @@
-// ⚠️ PDF.js Worker
+// ⚠️ PDF.js Worker MUST match version
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 
 // PDF → JPG converter function
 async function convertPDFtoJPG(file) {
-  if (!file) {
-    alert("Select a PDF file!");
-    return;
-  }
+    if (!file) {
+        alert("Select a PDF file!");
+        return;
+    }
 
     const previewDiv = document.getElementById("pdfJpgPreview");
     previewDiv.innerHTML = "Processing PDF…";
@@ -15,8 +15,8 @@ async function convertPDFtoJPG(file) {
     const reader = new FileReader();
     reader.onload = async function () {
         const typedArray = new Uint8Array(this.result);
-        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
 
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
         previewDiv.innerHTML = "";
 
         for (let i = 1; i <= pdf.numPages; i++) {
@@ -24,10 +24,11 @@ async function convertPDFtoJPG(file) {
             const viewport = page.getViewport({ scale: 2 });
 
             const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            const ctx = canvas.getContext("2d");
             await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
             const img = document.createElement("img");
@@ -39,7 +40,6 @@ async function convertPDFtoJPG(file) {
 
     reader.readAsArrayBuffer(file);
 }
-
 /**************** JPG → PDF ****************/
 async function convertJpgToPdf(files) {
   if (!files.length) {
@@ -265,6 +265,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
