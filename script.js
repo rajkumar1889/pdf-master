@@ -1,3 +1,4 @@
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
 function convertPdfToJpg(file){
     if(!file){alert('Select PDF'); return;}
     let reader = new FileReader();
@@ -200,4 +201,5 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
