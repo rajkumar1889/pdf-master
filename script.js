@@ -155,7 +155,7 @@ function scanQRPrompt() {
   input.click();
 }
 
-/**************** Text → Link ****************/
+/**************** Text → Link ****************
 function generateTextLink() {
   const text = document.getElementById("textInput").value;
   if (!text) return alert("Text likho!");
@@ -171,6 +171,37 @@ function generateTextLink() {
     width: 200,
     height: 200
   });
+}*/
+// Open Text → Link Tool
+function openTextToLink() {
+    const box = document.getElementById("tool_textToLink");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+}
+
+// Generate Link and QR Code
+function generateTextLink() {
+    let text = document.getElementById("textInput").value.trim();
+    if(!text) return alert("Please enter some text!");
+
+    // Encode text as URL parameter
+    let encodedText = encodeURIComponent(text);
+    let link = `${window.location.origin}/?text=${encodedText}`;
+
+    document.getElementById("generatedLink").value = link;
+
+    // Generate QR Code
+    const qrDiv = document.getElementById("textQr");
+    qrDiv.innerHTML = ""; // Clear previous QR
+    new QRious({
+        element: document.createElement('canvas'),
+        value: link,
+        size: 200,
+        level: 'H',
+        background: 'white',
+        foreground: 'black'
+    });
+
+    qrDiv.appendChild(qrDiv.querySelector('canvas') || qrDiv.firstChild);
 }
 
 /**************** Tool Open ****************/
@@ -201,6 +232,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
