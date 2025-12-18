@@ -1,36 +1,36 @@
-/**************** PDF → JPG ****************/
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js";
+function convertPdfToJpg(file){
+    if(!file){alert('Select PDF'); return;}
+    let reader = new FileReader();
+    reader.onload = function(e){
+        pdfjsLib.getDocument({data: e.target.result}).promise.then(pdf=>{
+            const zip = new JSZip();
+            let processed = 0;
 
-function convertPdfToJpg(file) {
-  if (!file) {
-    alert("Select PDF");
-    return;
-  }
+            for(let i=1; i <= pdf.numPages; i++){
+                pdf.getPage(i).then(page=>{
+                    let viewport = page.getViewport({scale:2});
+                    let canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
 
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    pdfjsLib.getDocument({ data: e.target.result }).promise.then(pdf => {
-      for (let i = 1; i <= pdf.numPages; i++) {
-        pdf.getPage(i).then(page => {
-          const viewport = page.getViewport({ scale: 2 });
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
+                    page.render({canvasContext: canvas.getContext('2d'), viewport: viewport}).promise.then(()=>{
+                        canvas.toBlob(blob=>{
+                            zip.file(`page_${i}.jpg`, blob);
+                            processed++;
 
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-
-          page.render({ canvasContext: ctx, viewport }).promise.then(() => {
-            const link = document.createElement("a");
-            link.href = canvas.toDataURL("image/jpeg", 1.0);
-            link.download = `page_${i}.jpg`;
-            link.click();
-          });
+                            // After last page processed, generate ZIP
+                            if(processed === pdf.numPages){
+                                zip.generateAsync({type:"blob"}).then(content=>{
+                                    saveAs(content, "converted_pages.zip");
+                                });
+                            }
+                        }, 'image/jpeg', 0.95);
+                    });
+                });
+            }
         });
-      }
-    });
-  };
-  reader.readAsArrayBuffer(file);
+    }
+    reader.readAsArrayBuffer(file);
 }
 
 /**************** JPG → PDF ****************/
@@ -200,3 +200,4 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
