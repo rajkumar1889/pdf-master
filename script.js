@@ -1,13 +1,12 @@
 // ⚠️ PDF.js Worker
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+pdfjsLib.GlobalWorkerOptions.workerSrc ="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 
 // PDF → JPG converter function
 async function convertPDFtoJPG(file) {
-    if (!file) {
-        alert("Select a PDF file!");
-        return;
-    }
+  if (!file) {
+    alert("Select a PDF file!");
+    return;
+  }
 
     const previewDiv = document.getElementById("pdfJpgPreview");
     previewDiv.innerHTML = "Processing PDF…";
