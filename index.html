@@ -91,24 +91,36 @@
     </div>
 
    
-    <!-- Text to Link -->
+    <!-- Text to Link 
     <div class="card" onclick="openTextToLink()">
         <h2>📝 Text → Link</h2>
         <p>Text ko link aur QR code me convert karo</p>
     </div>
 
-    <!-- TEXT TO LINK TOOL -->
-    <div class="toolBox" id="tool_textToLink" style="display:none;">
-        <h2>🔗 Text to Link</h2>
+    <!-- TEXT TO LINK TOOL 
+    <div class="toolBox" id=Link</h"tool_textToLink" style="display:none;">
+        <h2>🔗 Text to 2>
         <textarea id="textInput" placeholder="Yahan text likho..."></textarea>
         <button onclick="generateTextLink()">Generate Link</button>
         <input type="text" id="generatedLink" readonly>
         <!--<button onclick="copyLink()" style="margin-top:10px;">Copy Link</button>
-        <button onclick="download()" style="margin-top:10px;">download</button>-->
+        <button onclick="download()" style="margin-top:10px;">download</button>
 
         <div id="textQr"></div>
     </div>
-
+    <!-- Card in main index.html -->
+    <div class="card" onclick="openTextToLink()">
+        <h2>📝 Text → Link</h2>
+        <p>Text ko link aur QR code me convert karo</p>
+    </div>
+  <!-- Tool Box in index.html -->
+    <div class="toolBox" id="tool_textToLink" style="display:none; margin-top:20px;">
+        <h2>🔗 Text to Link</h2>
+        <textarea id="textInput" placeholder="Yahan text likho..." rows="4" cols="50"></textarea><br>
+        <button onclick="generateTextLink()">Generate Link</button>
+        <input type="text" id="generatedLink" readonly style="width:300px;"><br><br>
+        <div id="textQr"></div>
+    </div>
     <!-------Image to QR Code-->
     <div class="card">
         <h2>🖼 Image → QR Code</h2>
@@ -203,6 +215,7 @@
 
 </body>
 </html>
+
 
 
 
