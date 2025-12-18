@@ -1,38 +1,51 @@
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
-// PDF → JPG Function
+// ✅ PDF.js worker (VERSION MATCH)
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+// ✅ PDF → JPG Function
 async function convertPDFtoJPG(file) {
-    if (!file) return alert("Select a PDF file!");
+    if (!file) {
+        alert("Select a PDF file!");
+        return;
+    }
 
     const previewDiv = document.getElementById("pdfJpgPreview");
     previewDiv.innerHTML = "Processing PDF…";
 
-    let fileReader = new FileReader();
-    fileReader.onload = async function() {
-        let typedarray = new Uint8Array(this.result);
+    const fileReader = new FileReader();
 
-        let pdf = await pdfjsLib.getDocument(typedarray).promise;
+    fileReader.onload = async function () {
+        const typedarray = new Uint8Array(this.result);
+
+        const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
         previewDiv.innerHTML = "";
 
         for (let i = 1; i <= pdf.numPages; i++) {
-            let page = await pdf.getPage(i);
-            let viewport = page.getViewport({ scale: 2 });
-            let canvas = document.createElement("canvas");
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: 2 });
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            await page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport }).promise;
+            await page.render({
+                canvasContext: ctx,
+                viewport: viewport
+            }).promise;
 
-            let imgData = canvas.toDataURL("image/jpeg", 1.0);
+            const img = document.createElement("img");
+            img.src = canvas.toDataURL("image/jpeg", 1.0);
+            img.style.width = "200px";
+            img.style.margin = "10px";
 
-            let img = document.createElement("img");
-            img.src = imgData;
             previewDiv.appendChild(img);
         }
     };
 
     fileReader.readAsArrayBuffer(file);
 }
-
 
 /**************** JPG → PDF ****************/
 async function convertJpgToPdf(files) {
@@ -259,6 +272,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
