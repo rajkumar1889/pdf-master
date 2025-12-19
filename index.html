@@ -27,6 +27,7 @@
 </script>
 
 <!-- JS File -->
+<script src="pdf-to-jpg.js"></script>
 <script src="script.js"></script>
 
 </head>
@@ -48,18 +49,25 @@
 
 <!-- PDF → JPG -->
 <!-- ===== Cards ===== -->
-<div class="cards-container">
+<!--<div class="cards-container">
     <div class="card" onclick="document.getElementById('pdfToJpgInput').click()">
         <h2>📄PDF → JPG</h2>
-        <!-- <p>Convert pages into high-quality JPG images.</p> -->
+        <!-- <p>Convert pages into high-quality JPG images.</p> 
         <p> convord each PDF page into a JPG or extract all images contained ia a PDf </p>
         <input type="file" id="pdfToJpgInput"onchange="convertPdfToJpg(this.files[0])">
-        <!-- Preview -->
+        <!-- Preview 
         <div id="pdfJpgPreview" style="margin-top:20px;"></div>
-    </div>
+    </div>-->
  
-     <!-- JPG → PDF -->
-
+     <!--PDF   to JPG --> -->
+     <div class="box">
+        <h2>PDF to JPG Converter</h2>
+        <input type="file" id="pdfFile" accept="application/pdf">
+        <br><br>
+        <button onclick="convertPDF()">Convert to JPG</button>
+        <div id="output"></div>
+    </div>
+    <!-- JPG → PDF -->
     <div class="card" onclick="document.getElementById('jpgToPdfInput').click()">
         <h2>🖼 JPG → PDF</h2>
         <p>Merge multiple JPG images into a single PDF.</p>
@@ -220,6 +228,7 @@
 
 </body>
 </html>
+
 
 
 
