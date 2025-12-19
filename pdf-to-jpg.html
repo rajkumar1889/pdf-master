@@ -1,37 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF → JPG Converter</title>
-
-<!-- PDF.js Library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-<script>
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
-</script>
-
-<!-- JS File -->
-<script src="script.js"></script>
-
-<style>
-body { font-family: Arial; padding: 20px; }
-#pdfJpgPreview img { width: 200px; margin: 10px; border: 1px solid #ccc; }
-.btn { padding: 10px; background: #007bff; color: #fff; border: none; cursor: pointer; margin-top:10px; }
-</style>
+    <meta charset="UTF-8">
+    <title>PDF to JPG</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        canvas {
+            display: none;
+        }
+        img {
+            width: 100%;
+            margin-top: 15px;
+            border: 1px solid #ccc;
+        }
+        a {
+            display: block;
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
 
-<h2>PDF → JPG Converter</h2>
+<h2>PDF to JPG Output</h2>
+<div id="output"></div>
 
-<input type="file" id="pdfToJpgInput" accept="application/pdf"><br>
-<button class="btn" onclick="convertPDFtoJPG(document.getElementById('pdfToJpgInput').files[0])">
-Convert PDF → JPG
-</button>
+<!-- PDF.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
-<h3>Preview:</h3>
-<div id="pdfJpgPreview"></div>
+<script>
+const params = new URLSearchParams(window.location.search);
+const pdfUrl = params.get("pdf");
+
+if (!pdfUrl) {
+    alert("PDF not found");
+}
+
+pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+
+    for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+        pdf.getPage(pageNo).then(page => {
+
+            const scale = 2;
+            const viewport = page.getViewport({ scale });
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+
+                const img = document.createElement("img");
+                img.src = canvas.toDataURL("image/jpeg");
+
+                const download = document.createElement("a");
+                download.href = img.src;
+                download.download = `page-${pageNo}.jpg`;
+                download.innerText = `Download Page ${pageNo}`;
+
+                document.getElementById("output").appendChild(img);
+                document.getElementById("output").appendChild(download);
+            });
+        });
+    }
+});
+</script>
 
 </body>
 </html>
