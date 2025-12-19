@@ -1,44 +1,39 @@
-function openConverter() {
-    const fileInput = document.getElementById("pdfFile");
-
-    if (!fileInput.files.length) {
-        alert("Please select a PDF file");
-        return;
-    }
-
-    const file = fileInput.files[0];
-    const url = URL.createObjectURL(file);
-
-    // Open pdf-to-jpg.html in new tab
-    window.open(`pdf-to-jpg.html?pdf=${encodeURIComponent(url)}`, "_blank");
+/* ================= PDF.js Worker ================= */
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 }
 
-/**************** JPG → PDF ****************/
-async function convertJpgToPdf(files) {
-  if (!files.length) {
-    alert("Select JPG files");
-    return;
-  }
+/* ================= PDF → JPG ================= */
+function convertPdfToJpg(file) {
+  if (!file) return alert("Select PDF file");
 
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    pdfjsLib.getDocument({ data: e.target.result }).promise.then(pdf => {
+      for (let i = 1; i <= pdf.numPages; i++) {
+        pdf.getPage(i).then(page => {
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement("canvas");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
 
-  for (let i = 0; i < files.length; i++) {
-    const img = await fileToDataURL(files[i]);
-    if (i > 0) pdf.addPage();
-    pdf.addImage(img, "JPEG", 10, 10, 190, 270);
-  }
-
-  pdf.save("converted.pdf");
+          page.render({
+            canvasContext: canvas.getContext("2d"),
+            viewport
+          }).promise.then(() => {
+            const a = document.createElement("a");
+            a.href = canvas.toDataURL("image/jpeg", 0.95);
+            a.download = `page-${i}.jpg`;
+            a.click();
+          });
+        });
+      }
+    });
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-function fileToDataURL(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.readAsDataURL(file);
-  });
-}
 
 /**************** PNG ↔ JPG ****************/
 function convertImage(file) {
@@ -238,6 +233,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
