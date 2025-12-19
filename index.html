@@ -3,15 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>pdf-to-any</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF to JPG, JPG to PDF, QR Generator | Free PDF Tools</title>
 <!--google verify code-->
 <meta name="google-site-verification" content="gIht6eCiWdYrranfL_L9mQWcuUsx3REYypYZOBlauP4" />
+
+<meta name="description" content="Free online PDF tools: PDF to JPG, JPG to PDF, PNG to JPG, QR Code Generator & Scanner, Rotate PDF, Compress PDF and more. No signup required.">
+<meta name="keywords" content="pdf to jpg, jpg to pdf, pdf tools, qr generator, rotate pdf, compress pdf, png to jpg">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://rajkumar1889.github.io/pdf-master/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Free PDF Tools – PDF to JPG, JPG to PDF">
+<meta property="og:description" content="Convert PDFs, images and generate QR codes online for free. Fast, secure and easy-to-use tools.">
+<meta property="og:url" content="https://rajkumar1889.github.io/pdf-master/">
+<meta property="og:type" content="website">
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Custom CSS -->
 <link rel="stylesheet" href="style.css?v=2025">
-<!-- ======================= JS Libraries ======================= -->
+
+
+<!-- JS Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<!-- JS File -->
+<script src="script.js"></script>
+<!-- ======================= JS Libraries ======================= 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
@@ -22,14 +49,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"></script>
-<!-- ✅ YAHAN -->
+<!-- ✅ YAHAN 
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc ="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";-->
+  pdfjsLib.GlobalWorkerOptions.workerSrc ="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 </script>
 
-<!-- JS File -->
-<script src="script.js"></script>
+<!-- JS File 
+<script src="script.js"></script>-->
 
 </head>
 <body>
@@ -46,27 +73,17 @@
   <p>Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge,split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.</p>
 </header>
 
-
-
-<!-- PDF → JPG -->
 <!-- ===== Cards ===== -->
 <div class="cards-container">
+    <!-- PDF → JPG -->
     <div class="card" onclick="document.getElementById('pdfToJpgInput').click()">
         <h2>📄PDF → JPG</h2>
         <p>Convert pages into high-quality JPG images.</p> 
         <p> convord each PDF page into a JPG or extract all images contained ia a PDf </p>
         <input type="file" id="pdfToJpgInput"onchange="convertPdfToJpg(this.files[0])">
-        <!--<Preview -->
         <div id="pdfJpgPreview" style="margin-top:20px;"></div>
     </div>
- 
-     <!--<!--PDF   to JPG
-     <div class="box">
-        <h2>PDF to JPG Converter</h2>
-        <input type="file" id="pdfFile" accept="application/pdf">
-        <br><br>
-        <button onclick="convertPDF()">Convert to JPG</button>
-    </div>-->
+     
     <!-- JPG → PDF -->
     <div class="card" onclick="document.getElementById('jpgToPdfInput').click()">
         <h2>🖼 JPG → PDF</h2>
@@ -74,7 +91,7 @@
         <input type="file" id="jpgToPdfInput" multiple onchange="convertJpgToPdf(this.files)">
     </div>
     
-     <!-- JPG → PDF -->
+     <!-- PNG → JPG -->
 
     <div class="card" onclick="document.getElementById('imgConvertInput').click()">
         <h2>🖼 PNG ↔ JPG</h2>
@@ -82,21 +99,21 @@
         <input type="file" id="imgConvertInput" onchange="convertImage(this.files[0])">
     </div>
     
-     <!-- JPG → PDF -->
+     <!-- QR Generator -->
 
     <div class="card" onclick="generateQRPrompt()">
         <h2>🔳 QR Generator</h2>
         <p>Create QR codes for text or URL.</p>
     </div>
 
-     <!-- JPG → PDF -->
+     <!-- QR Scanner -->
 
     <div class="card" onclick="scanQRPrompt()">
         <h2>🔍 QR Scanner</h2>
         <p>Scan QR codes from images.</p>
     </div>
 
-     <!-- JPG → PDF -->
+     <!-- Rotate PDF -->
 
     <div class="card" onclick="openTool('rotatePdf')">
         <h2>🔄 Rotate PDF</h2>
@@ -104,24 +121,7 @@
     </div>
 
    
-    <!-- Text to Link 
-    <div class="card" onclick="openTextToLink()">
-        <h2>📝 Text → Link</h2>
-        <p>Text ko link aur QR code me convert karo</p>
-    </div>
-
-    <!-- TEXT TO LINK TOOL 
-    <div class="toolBox" id=Link</h"tool_textToLink" style="display:none;">
-        <h2>🔗 Text to 2>
-        <textarea id="textInput" placeholder="Yahan text likho..."></textarea>
-        <button onclick="generateTextLink()">Generate Link</button>
-        <input type="text" id="generatedLink" readonly>
-        <!--<button onclick="copyLink()" style="margin-top:10px;">Copy Link</button>
-        <button onclick="download()" style="margin-top:10px;">download</button>
-
-        <div id="textQr"></div>
-    </div>
-    <!-- Card in main index.html -->
+    <!-- Text → Link-->
     <div class="card" onclick="openTextToLink()">
         <h2>📝 Text → Link</h2>
         <p>Text ko link aur QR code me convert karo</p>
@@ -134,7 +134,7 @@
         <input type="text" id="generatedLink" readonly style="width:300px;"><br><br>
         <div id="textQr"></div>
     </div>
-    <!-------Image to QR Code-->
+    <!-------Image  → QR Code-->
     <div class="card">
         <h2>🖼 Image → QR Code</h2>
         <input type="file" id="imgQRInput" accept="image/*">
@@ -145,23 +145,18 @@
         <div id="imgQR"></div>
     </div>
 
-    <!--------- Image to Link --------->
+    <!--------- Image  → Link --------->
     <div class="card" onclick="openImageQR()">
-
         <h2>🖼 Image → Link</h2>
-        <!--<input type="file" id="imgFile">-->
         <p><input type="url" id="imgURL" placeholder="Enter URL for image"></p>
         <button onclick="addImageLink()">Add Image Link</button>
         <img id="imgPreviewLink" style="display:none">
-
     </div>
     <!-- BMI -->
-
     <div class="card" onclick="calcBMIPrompt()">
         <h2>⚖ BMI Calculator</h2>
         <p>Calculate Body Mass Index instantly.</p>
     </div>
-
      <!-- EDIT PDF TOOL -->
     <div class="toolBox" id="tool_editPdf" style="display:none;">
         <h2>✏️ Edit PDF</h2>
@@ -171,52 +166,41 @@
         <div id="editPdfPreview" style="margin-top:20px;"></div>
     </div>
 
-    <!-- BMI -->
+    <!-- Age Calculator -->
     <div class="card" onclick="calcAgePrompt()">
         <h2>🎂 Age Calculator</h2>
         <p>Find accurate age in years, months, days.</p>
     </div>
-    
+    <!-- Coming Soon Tools -->
     <div class="card" onclick="alert('Coming Soon')">
         <h2>📊❌ Excel → PDF</h2>
         <p>Convert Excel files to PDF (Preview & Download)</p>
     </div>
-
     <div class="card" onclick="openTool('editPdf')">
         <h2>✏️ ❌ Edit PDF</h2>
         <p>Add text or images to PDF (Preview)</p>
-    </div>
-    
+    </div>    
     <div class="card" onclick="openTool('signPdf')">
         <h2>✍️❌ Sign PDF</h2>
         <p>Add signature & download</p>
     </div>
-
-    
-
     <div class="card" onclick="openTool('watermarkPdf')">
         <h2>💧❌ Watermark PDF</h2>
         <p>Add text watermark to PDF</p>
-    </div>
-
-    
+    </div>    
     <div class="card" onclick="openTool('htmlToPdf')">
         <h2>🌐 ❌ HTML → PDF</h2>
         <p>Convert webpage to PDF</p>
-    </div>
-
-    
+    </div>    
     <div class="card" onclick="openTool('pdfToExcel')">
         <h2>📄❌ PDF → Excel</h2>
         <p>Extract tables to Excel</p>
-    </div>
-
-    
+    </div>    
     <div class="card" onclick="alert('PDF Compress demo!')">
         <h2>📦❌ Compress PDF</h2>
         <p>Reduce PDF size without losing quality.</p>
     </div>
-
+  
 </div>
 
 <!-- ===== Footer ===== -->
@@ -224,10 +208,10 @@
 <footer>
     © 2025 All-in-One PDF Tools — All Rights Reserved
 </footer>
-<!-- ======================= JS Functions ======================= -->
-
+  
 </body>
 </html>
+
 
 
 
