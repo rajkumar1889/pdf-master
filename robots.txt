@@ -1,0 +1,24 @@
+# ===============================
+# Robots.txt for rajkumar1889.github.io/pdf-master
+# Author: Ankit Raj
+# Last Updated: 2025-12-19
+# ===============================
+
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Block any sensitive or private folders (example)
+# Disallow: /private/
+# Disallow: /temp/
+
+# Sitemap location
+Sitemap: https://rajkumar1889.github.io/pdf-master/sitemap.xml
+
+# Crawl-delay (optional, useful if site is heavy)
+# Crawl-delay: 10
+
+# Notes:
+# - 'Allow: /' ensures all public pages are crawlable.
+# - Uncomment Disallow lines for any folder you want to hide from bots.
+# - Sitemap helps search engines discover all your pages faster.
