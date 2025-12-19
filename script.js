@@ -1,45 +1,25 @@
-// ⚠️ PDF.js Worker MUST match version
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+function convertPDF() {
+    const fileInput = document.getElementById("pdfFile");
+    const output = document.getElementById("output");
 
-// PDF → JPG converter function
-async function convertPDFtoJPG(file) {
-    if (!file) {
-        alert("Select a PDF file!");
+    if (!fileInput.files.length) {
+        alert("Please select a PDF file");
         return;
     }
 
-    const previewDiv = document.getElementById("pdfJpgPreview");
-    previewDiv.innerHTML = "Processing PDF…";
+    output.innerHTML = "";
 
+    const file = fileInput.files[0];
     const reader = new FileReader();
-    reader.onload = async function () {
-        const typedArray = new Uint8Array(this.result);
 
-        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
-        previewDiv.innerHTML = "";
-
-        for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const viewport = page.getViewport({ scale: 2 });
-
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-
-            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-
-            const img = document.createElement("img");
-            img.src = canvas.toDataURL("image/jpeg", 1.0);
-
-            previewDiv.appendChild(img);
-        }
+    reader.onload = function () {
+        const typedarray = new Uint8Array(this.result);
+        pdfToJpg(typedarray, output);
     };
 
     reader.readAsArrayBuffer(file);
 }
+
 /**************** JPG → PDF ****************/
 async function convertJpgToPdf(files) {
   if (!files.length) {
@@ -265,6 +245,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
