@@ -1,23 +1,16 @@
-function convertPDF() {
+function openConverter() {
     const fileInput = document.getElementById("pdfFile");
-    const output = document.getElementById("output");
 
     if (!fileInput.files.length) {
         alert("Please select a PDF file");
         return;
     }
 
-    output.innerHTML = "";
-
     const file = fileInput.files[0];
-    const reader = new FileReader();
+    const url = URL.createObjectURL(file);
 
-    reader.onload = function () {
-        const typedarray = new Uint8Array(this.result);
-        pdfToJpg(typedarray, output);
-    };
-
-    reader.readAsArrayBuffer(file);
+    // Open pdf-to-jpg.html in new tab
+    window.open(`pdf-to-jpg.html?pdf=${encodeURIComponent(url)}`, "_blank");
 }
 
 /**************** JPG → PDF ****************/
@@ -245,6 +238,7 @@ async function editPdf() {
   link.download = "edited.pdf";
   link.click();
 }
+
 
 
 
